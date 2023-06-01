@@ -62,10 +62,10 @@ def polyRegFit(x, a, b, c, d, e, f):
     polyReg = a*(x**5)+b*(x**4)+c*(x**3)+d*(x**2)+e*(x)+f
     return polyReg
 
-def estimatedStretches(odb):
+def estimatedStretches(path, odb):
     # extract stretch and w/l data
-    df = pd.read_csv(odb, encoding='ISO-8859-1')
-    dfExp = pd.read_csv('../simulations/neonate and adult .csv files/statistics_experimental_data.csv', encoding='ISO-8859-1')
+    df = pd.read_csv(path+odb, encoding='ISO-8859-1')
+    dfExp = pd.read_csv(path+'statistics_experimental_data.csv', encoding='ISO-8859-1')
 
     # curve fit of adult transverse data for standard deviation higher bound of stretch
     if odb == 'adultICRMouseDuraMaterTranCutResults.csv':
@@ -104,14 +104,14 @@ def estimatedStretches(odb):
                 estStrain.append(stretch-1)
                 expWoverL.append(dfExp.wOverl_t5min[i])
 
-def statisticalAnalysis(odb1, odb2):
+def statisticalAnalysis(path, odb1, odb2):
     odbs = [odb1, odb2]
     samplewOverl = []
     sampleestSt  = []
     sampleestStrain  = []
     compList = []
     for odb in odbs:
-        estimatedStretches(odb)
+        estimatedStretches(path, odb)
         samplewOverl.append(expWoverL)
         sampleestSt.append(estSt)
         sampleestStrain.append(estStrain)
@@ -178,10 +178,11 @@ def statisticalAnalysis(odb1, odb2):
     writer.writerows(output)
 
 # input .csv files
-odb1 = '../simulations/neonate and adult .csv files/neonateICRMouseDuraMaterTranCutResults.csv'
-odb2 = '../simulations/neonate and adult .csv files/neonateICRMouseDuraMaterLongCutResults.csv'
-odb3 = '../simulations/neonate and adult .csv files/adultICRMouseDuraMaterTranCutResults.csv'
-odb4 = '../simulations/neonate and adult .csv files/adultICRMouseDuraMaterLongCutResults.csv'
+path = '../../simulations/neonate and adult .csv files/'
+odb1 = 'neonateICRMouseDuraMaterTranCutResults.csv'
+odb2 = 'neonateICRMouseDuraMaterLongCutResults.csv'
+odb3 = 'adultICRMouseDuraMaterTranCutResults.csv'
+odb4 = 'adultICRMouseDuraMaterLongCutResults.csv'
 
 # analysis
 outFile = open('results-p-value_and_effect_size.csv', 'w+')
@@ -190,15 +191,15 @@ writer = csv.writer(outFile)
 writer.writerow(header)
 print('------------------------------------------------------------------')
 print('neonate transverse vs neonate longitudinal')
-statisticalAnalysis(odb1, odb2)
+statisticalAnalysis(path, odb1, odb2)
 print('------------------------------------------------------------------')
 print('adult transverse vs adult longitudinal')
-statisticalAnalysis(odb3, odb4)
+statisticalAnalysis(path, odb3, odb4)
 print('------------------------------------------------------------------')
 print('neonate transverse vs adult transverse')
-statisticalAnalysis(odb3, odb1)
+statisticalAnalysis(path, odb3, odb1)
 print('------------------------------------------------------------------')
 print('neonate longitudinal vs adult longitudinal')
-statisticalAnalysis(odb2, odb4)
+statisticalAnalysis(path, odb2, odb4)
 print('------------------------------------------------------------------')
 outFile.close()

@@ -24,7 +24,7 @@ def polyRegFit(x, a, b, c, d, e, f):
     polyReg = a*(x**5)+b*(x**4)+c*(x**3)+d*(x**2)+e*(x)+f
     return polyReg
 
-def stretchVsIncisionOpening(expWoverL, odb, title, xticks, yticks):
+def stretchVsIncisionOpening(expWoverL, path, odb, title, xticks, yticks):
     # figure settings 
     plt.rcParams['text.usetex'] = True
     plt.rcParams['font.family'] = "serif"
@@ -35,7 +35,7 @@ def stretchVsIncisionOpening(expWoverL, odb, title, xticks, yticks):
 
 
     # extract stretch and w/l data
-    dataframe = pd.read_csv(odb, encoding='ISO-8859-1')
+    dataframe = pd.read_csv(path+odb, encoding='ISO-8859-1')
 
     # curve fit of adult transverse data for standard deviation higher bound of stretch
     if title == 'adult_transverse':
@@ -86,7 +86,7 @@ def stretchVsIncisionOpening(expWoverL, odb, title, xticks, yticks):
 def plot(sim):
     xticks = np.arange(1.000, 1.180, step=0.020)
     yticks = np.arange(0.000, 0.400, step=0.050)
-    stretchVsIncisionOpening(sim.expWoverL, sim.odb, sim.title, xticks, yticks)
+    stretchVsIncisionOpening(sim.expWoverL, sim.path, sim.odb, sim.title, xticks, yticks)
     print('Simulation:', sim.title)
     print('Estimated stretch:', expStAve,'+/-',expStStd)
 
@@ -116,22 +116,26 @@ def run(sims):
 class neonateTran():
     def __init__(self):
         self.expWoverL = [0.171, 0.073]
-        self.odb = '../simulations/neonate and adult .csv files/neonateICRMouseDuraMaterTranCutResults.csv'
+        self.path = '../../simulations/neonate and adult .csv files/'
+        self.odb = 'neonateICRMouseDuraMaterTranCutResults.csv'
         self.title = 'neonate_transverse'
 class neonateLong():
     def __init__(self):
         self.expWoverL = [0.106, 0.045]
-        self.odb = '../simulations/neonate and adult .csv files/neonateICRMouseDuraMaterLongCutResults.csv'
+        self.path = '../../simulations/neonate and adult .csv files/'
+        self.odb = 'neonateICRMouseDuraMaterLongCutResults.csv'
         self.title = 'neonate_longitudinal'
 class adultTran():
     def __init__(self):
         self.expWoverL = [0.244, 0.072]
-        self.odb = '../simulations/neonate and adult .csv files/adultICRMouseDuraMaterTranCutResults.csv'
+        self.path = '../../simulations/neonate and adult .csv files/'
+        self.odb = 'adultICRMouseDuraMaterTranCutResults.csv'
         self.title = 'adult_transverse'
 class adultLong():
     def __init__(self):
         self.expWoverL = [0.094, 0.043]
-        self.odb = '../simulations/neonate and adult .csv files/adultICRMouseDuraMaterLongCutResults.csv'
+        self.path = '../../simulations/neonate and adult .csv files/'
+        self.odb = 'adultICRMouseDuraMaterLongCutResults.csv'
         self.title = 'adult_longitudinal'
 
 if __name__ == '__main__':
