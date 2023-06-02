@@ -52,10 +52,10 @@ def estimate_individual_stretches(path, csv):
         if df_exp.age_group[i] == age_group and df_exp.cut_orientation[i] == cut_orientation:
                 # extract experimental data for relevant group
                 group_name.append(df_exp.age_group[i][0] + df_exp.cut_orientation[i][0])
-                wbar_exp.append(df_exp.wbar_5min[i])
+                wbar_exp.append(df_exp.wbar[i])
                 
                 # estimate corresponding stretch
-                stretch = analysis_functions.interpolateStretch(df_sim.lambda_p, df_sim.wbar, df_exp.wbar_5min[i])
+                stretch = analysis_functions.interpolateStretch(df_sim.lambda_p, df_sim.wbar, df_exp.wbar[i])
                 
                 # append stretch and strain values
                 lambda_est.append(stretch)
@@ -126,27 +126,30 @@ def estimate_mean_stretch(wbar_exp, path, csv, title):
 def write_estimated_stretches(groups):
     
     # aggregate results for each group
-    experiments = []
-    wbar_avgs = []
-    wbar_stds = []
-    lambda_avgs = []
-    lambda_stds = []
+    # experiments = []
+    # wbar_avgs = []
+    # wbar_stds = []
+    # lambda_avgs = []
+    # lambda_stds = []
     
-    for group in groups:
+    [group_names, wbar_sets, lambda_sets, strain_sets] = exp_and_est_data(path, csvs)
+    [wbar_mean, wbar_stdv, lambda_mean, lambda_stdv] = exp_and_est_means(csvs, wbar_sets, lambda_sets)
 
-        [lambda_avg, lambda_std] = estimate_mean_stretch(group.wbar_exp, group.path, group.csv, group.title)
+    for i in range(len(groups)):        
+        [lambda_avg, lambda_std] = estimate_mean_stretch([wbar_mean[i], wbar_stdv[i]], group.path, group.csv, group.title)
+
         print('Simulation:', group.title)
         print('Estimated stretch:', lambda_avg,'+/-',lambda_std)
-        experiments.append(group.title)
-        wbar_avgs.append(group.wbar_exp[0])
-        wbar_stds.append(group.wbar_exp[1])
-        lambda_avgs.append(lambda_avg)
-        lambda_stds.append(lambda_std)
+        # experiments.append(group.title)
+        # wbar_avgs.append(group.wbar_exp[0])
+        # wbar_stds.append(group.wbar_exp[1])
+        # lambda_avgs.append(lambda_avg)
+        # lambda_stds.append(lambda_std)
     
     # write experimental stretch information to file
     outFile = open('results-estimated_stretches.csv', 'w+')
     header = ['Experiment','w/l (exp, ave)','w/l (exp, std)','stretch (ave)','stretch (std)']
-    output = zip(experiments, wbar_avgs, wbar_stds, lambda_avgs, lambda_stds)
+    output = zip(group_names, wbar_mean, wbar_stdv, lambda_mean, lambda_stdv)
     writer = csv.writer(outFile)
     writer.writerow(header)
     writer.writerows(output)
@@ -208,9 +211,6 @@ def bar_plot(path, csvs):
     colors = [neonate, neonate, adult, adult]
     hatches = ['--', '||', '--', '||']
 
-    print(group_names)
-    print(wbar_mean)
-    print(wbar_stdv)
     plt.figure()
     bars = plt.bar(group_names, wbar_mean, yerr=wbar_stdv, capsize=4, color=colors)
     for i in range(len(group_names)):
@@ -227,35 +227,34 @@ def bar_plot(path, csvs):
     plt.savefig("figure-bar_lambda", dpi=400)
 
 class ExperimentalGroup(object):
-    def __init__(self, wbar_exp, path, csv, title):
-        self.wbar_exp = wbar_exp
+    def __init__(self, path, csv, title):
         self.path = path
         self.csv = csv
         self.title = title
 
 neonateTran = ExperimentalGroup(
-        [0.167, 0.039],
+        
         '../simulations/results/',
         'neonate_tran_sim.csv',
         'neonate_transverse'
     )
 
 neonateLong = ExperimentalGroup(
-        [0.095, 0.043],
+        
         '../simulations/results/',
         'neonate_long_sim.csv',
         'neonate_longitudinal'
     )
 
 adultTran = ExperimentalGroup(
-        [0.230, 0.073],
+        
         '../simulations/results/',
         'adult_tran_sim.csv',
         'adult_transverse'
     )
 
 adultLong = ExperimentalGroup(
-        [0.092, 0.046],
+        
         '../simulations/results/',
         'adult_long_sim.csv',
         'adult_longitudinal'
