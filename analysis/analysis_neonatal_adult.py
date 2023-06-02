@@ -8,17 +8,83 @@ cranial dura mater simulations.
 import csv
 import numpy as np
 import pandas as pd
-import seaborn as sns
-import matplotlib
+import statistics as st
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+from scipy.stats import ttest_ind
 
 import analysis_functions
 
-def stretchVsIncisionOpening(wbar_exp, path, odb, title, xticks, yticks):
+def exp_and_est_data(path, csvs):
+    group_names = []
+    wbar_sets = []
+    lambda_sets  = []
+    strain_sets  = []
+    
+    for csv in csvs:
+        [group_name, wbar_exp, lambda_est, strain_est] = estimate_individual_stretches(path, csv)
+        group_names.append(group_name[0])
+        wbar_sets.append(wbar_exp)
+        lambda_sets.append(lambda_est)
+        strain_sets.append(strain_est)
 
-    # extract stretch and w/l data
-    df_sim = pd.read_csv(path+odb, encoding='ISO-8859-1')
+    return group_names, wbar_sets, lambda_sets, strain_sets
+
+def estimate_individual_stretches(path, csv):
+    """ estimate stretch and strain corresponding to each experimental wbar value """
+    # extract stretch and w/l data 
+    df_sim = pd.read_csv(path+csv, encoding='ISO-8859-1')
+    df_exp = pd.read_csv('../experiments/experimental_data.csv', encoding='ISO-8859-1')
+
+    # curve fit of adult transverse data for standard deviation higher bound of stretch
+    if csv == 'adult_tran_sim.csv':
+        df_sim = analysis_functions.extrapolate(df_sim)
+    
+    group_name = []
+    wbar_exp = []
+    lambda_est = []
+    strain_est = []
+
+    for i in range(len(df_exp.wbar)):
+        age_group = csv.split("_")[0]
+        cut_orientation = csv.split("_")[1]
+
+        if df_exp.age_group[i] == age_group and df_exp.cut_orientation[i] == cut_orientation:
+                # extract experimental data for relevant group
+                group_name.append(df_exp.age_group[i][0] + df_exp.cut_orientation[i][0])
+                wbar_exp.append(df_exp.wbar_5min[i])
+                
+                # estimate corresponding stretch
+                stretch = analysis_functions.interpolateStretch(df_sim.lambda_p, df_sim.wbar, df_exp.wbar_5min[i])
+                
+                # append stretch and strain values
+                lambda_est.append(stretch)
+                strain_est.append(stretch-1)
+
+    return group_name, wbar_exp, lambda_est, strain_est
+
+def exp_and_est_means(csvs, wbar_sets, lambda_sets):
+    wbar_mean = []
+    lambda_mean = []
+    wbar_stdv = []
+    lambda_stdv = []
+
+    for i in range(len(csvs)):
+        wbar_mean.append(st.mean(wbar_sets[i]))
+        wbar_stdv.append(np.std(wbar_sets[i], ddof=1))
+        lambda_mean.append(st.mean(lambda_sets[i]))
+        lambda_stdv.append(np.std(lambda_sets[i], ddof=1))
+
+    return wbar_mean, wbar_stdv, lambda_mean, lambda_stdv
+
+def estimate_mean_stretch(wbar_exp, path, csv, title, xticks, yticks):
+    """ estimates stretch from average +/- stdev values of wbar """
+
+    # extract stretch and w/l data from simulations
+    df_sim = pd.read_csv(path+csv, encoding='ISO-8859-1')
+
+    # extract expeimental results!!
+
 
     # curve fit of adult transverse data for standard deviation higher bound of stretch
     if title == 'adult_transverse':
@@ -57,7 +123,7 @@ def stretchVsIncisionOpening(wbar_exp, path, odb, title, xticks, yticks):
 
     return lambda_avg, lambda_std
 
-def run(sims):
+def write_estimated_stretches(groups):
     
     # aggregate results for each group
     experiments = []
@@ -65,15 +131,17 @@ def run(sims):
     wbar_stds = []
     lambda_avgs = []
     lambda_stds = []
-    for sim in sims:
+    
+    for group in groups:
         xticks = np.arange(1.000, 1.180, step=0.020)
         yticks = np.arange(0.000, 0.400, step=0.050)
-        [lambda_avg, lambda_std] = stretchVsIncisionOpening(sim.wbar_exp, sim.path, sim.odb, sim.title, xticks, yticks)
-        print('Simulation:', sim.title)
+
+        [lambda_avg, lambda_std] = estimate_mean_stretch(group.wbar_exp, group.path, group.csv, group.title, xticks, yticks)
+        print('Simulation:', group.title)
         print('Estimated stretch:', lambda_avg,'+/-',lambda_std)
-        experiments.append(sim.title)
-        wbar_avgs.append(sim.wbar_exp[0])
-        wbar_stds.append(sim.wbar_exp[1])
+        experiments.append(group.title)
+        wbar_avgs.append(group.wbar_exp[0])
+        wbar_stds.append(group.wbar_exp[1])
         lambda_avgs.append(lambda_avg)
         lambda_stds.append(lambda_std)
     
@@ -86,12 +154,85 @@ def run(sims):
     writer.writerows(output)
     outFile.close()
 
+def statistical_analysis(path, csv1, csv2):
+    csvs = [csv1, csv2]
+    
+    # gather all data for both comparison groups
+    [group_names, wbar_sets, lambda_sets, strain_sets] = exp_and_est_data(path, csvs)
+    
+    # perform statistics on both quantities (measured wbar and estimated stretch)
+    p_values  = []
+    effect_size = []
+    comparison = []
+    
+    for test in [wbar_sets, lambda_sets]:
+        comparison.append(group_names[0]+group_names[1])
+        
+        # statistics w/ ttest_ind
+        [t, p] = ttest_ind(np.array(test[0]), np.array(test[1]), equal_var=False)
+        p_values.append(p)
+
+        # effect size
+        mean = [st.mean(test[0]), st.mean(test[1])]
+        stdv = [np.std(test[0], ddof=1), np.std(test[1], ddof=1)]
+        s = np.sqrt((stdv[0]**2 + stdv[1]**2)/2)
+        effect_size.append((mean[0]-mean[1])/s)
+    
+    # print results
+    print('------------------------------------------------------------------')
+    print(comparison)
+    print('w/l:                p = %g, d = %g' % (p_values[0], effect_size[0]))
+    print('stretch:            p = %g, d = %g' % (p_values[1], effect_size[1]))
+
+    # write to results file file
+    output = zip(comparison, ['w/l', 'stretch'], p_values, effect_size)
+    writer.writerows(output)
+
+def bar_plot(path, csvs):
+
+    [group_names, wbar_sets, lambda_sets, strain_sets] = exp_and_est_data(path, csvs)
+
+    [wbar_mean, wbar_stdv, lambda_mean, lambda_stdv] = exp_and_est_means(csvs, wbar_sets, lambda_sets)
+
+    plt.rcParams['text.usetex'] = True
+    plt.rcParams['font.family'] = "serif"
+    plt.rcParams['axes.autolimit_mode'] = 'round_numbers'
+    plt.rcParams['axes.xmargin'] = 0
+    plt.rcParams['axes.ymargin'] = 0
+    plt.rcParams['font.size'] = 13
+    plt.rcParams['hatch.linewidth'] = 2
+
+    cmap = plt.cm.get_cmap("Blues")
+    neonate = cmap(0.2)
+    adult = cmap(1.0)
+
+    group_names = ['neonate \\ transverse', 'neonate longitudinal', 'adult transverse', 'adult longitudinal']
+    colors = [neonate, neonate, adult, adult]
+    hatches = ['--', '||', '--', '||']
+
+    print(group_names)
+    print(wbar_mean)
+    print(wbar_stdv)
+    plt.figure()
+    bars = plt.bar(group_names, wbar_mean, yerr=wbar_stdv, capsize=4, color=colors)
+    for i in range(len(group_names)):
+        bars[i].set(hatch = hatches[i], edgecolor='white')
+    plt.ylabel(r'$\overline{w}_E$')
+    plt.savefig("figure-bar_wbar", dpi=400)
+
+    plt.figure()
+    bars = plt.bar(group_names, lambda_mean, yerr=lambda_stdv, capsize=4, color=colors)
+    for i in range(len(group_names)):
+        bars[i].set(hatch = hatches[i], edgecolor='white')
+    plt.ylim([1, 1.2])
+    plt.ylabel(r'$\lambda_p$')
+    plt.savefig("figure-bar_lambda", dpi=400)
 
 class ExperimentalGroup(object):
-    def __init__(self, wbar_exp, path, odb, title):
+    def __init__(self, wbar_exp, path, csv, title):
         self.wbar_exp = wbar_exp
         self.path = path
-        self.odb = odb
+        self.csv = csv
         self.title = title
 
 neonateTran = ExperimentalGroup(
@@ -122,31 +263,29 @@ adultLong = ExperimentalGroup(
         'adult_longitudinal'
     )
 
-# class neonateTran():
-#     def __init__(self):
-#         self.wbar_exp = [0.171, 0.073]
-#         self.path = '../simulations/results/'
-#         self.odb = 'neonate_tran_sim.csv'
-#         self.title = 'neonate_transverse'
-# class neonateLong():
-#     def __init__(self):
-#         self.wbar_exp = [0.106, 0.045]
-#         self.path = '../simulations/results/'
-#         self.odb = 'neonate_long_sim.csv'
-#         self.title = 'neonate_longitudinal'
-# class adultTran():
-#     def __init__(self):
-#         self.wbar_exp = [0.244, 0.072]
-#         self.path = '../simulations/results/'
-#         self.odb = 'adult_tran_sim.csv'
-#         self.title = 'adult_transverse'
-# class adultLong():
-#     def __init__(self):
-#         self.wbar_exp = [0.094, 0.043]
-#         self.path = '../simulations/results/'
-#         self.odb = 'adult_long_sim.csv'
-#         self.title = 'adult_longitudinal'
 
 if __name__ == '__main__':
-    sims = [neonateTran, neonateLong, adultTran, adultLong]
-    run(sims)
+    
+    path = '../simulations/results/'
+
+    groups = [neonateTran, neonateLong, adultTran, adultLong]
+    csvs = []
+    for group in groups: 
+        csvs.append(group.csv)
+
+    write_estimated_stretches(groups)
+
+    bar_plot(path, csvs)
+
+    # statistical analysis
+    outFile = open('results-statistics.csv', 'w+')
+    header = ['comparison', 'metric', 'test statistic', 'p-value', 'effect size']
+    writer = csv.writer(outFile)
+    writer.writerow(header)
+    statistical_analysis(path, csvs[0], csvs[1])
+    statistical_analysis(path, csvs[2], csvs[3])
+    statistical_analysis(path, csvs[0], csvs[2])
+    statistical_analysis(path, csvs[1], csvs[3])
+    outFile.close()
+
+    plt.show()
