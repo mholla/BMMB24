@@ -19,7 +19,7 @@ def estimatedStretches(path, csv):
     """ estimate stretch and strain corresponding to each experimental wbar value """
     # extract stretch and w/l data 
     df_sim = pd.read_csv(path+csv, encoding='ISO-8859-1')
-    df_exp = pd.read_csv('../experimental data/experimental_data.csv', encoding='ISO-8859-1')
+    df_exp = pd.read_csv('../experiments/experimental_data.csv', encoding='ISO-8859-1')
 
     # curve fit of adult transverse data for standard deviation higher bound of stretch
     if csv == 'adult_tran_sim.csv':
