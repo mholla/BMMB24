@@ -122,13 +122,6 @@ def estimate_mean_stretch(wbar_exp, path, csv, title):
 
 def write_estimated_stretches(groups):
     
-    # aggregate results for each group
-    # experiments = []
-    # wbar_avgs = []
-    # wbar_stds = []
-    # lambda_avgs = []
-    # lambda_stds = []
-    
     [group_names, wbar_sets, lambda_sets, strain_sets] = exp_and_est_data(path, csvs)
     [wbar_mean, wbar_stdv, lambda_mean, lambda_stdv] = exp_and_est_means(csvs, wbar_sets, lambda_sets)
 
@@ -137,11 +130,6 @@ def write_estimated_stretches(groups):
 
         print('Simulation:', group.title)
         print('Estimated stretch:', lambda_avg,'+/-',lambda_std)
-        # experiments.append(group.title)
-        # wbar_avgs.append(group.wbar_exp[0])
-        # wbar_stds.append(group.wbar_exp[1])
-        # lambda_avgs.append(lambda_avg)
-        # lambda_stds.append(lambda_std)
     
     # write experimental stretch information to file
     outFile = open('results-estimated_stretches.csv', 'w+')
