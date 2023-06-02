@@ -236,28 +236,28 @@ class ExperimentalGroup(object):
         self.title = title
 
 neonateTran = ExperimentalGroup(
-        [0.171, 0.073],
+        [0.167, 0.039],
         '../simulations/results/',
         'neonate_tran_sim.csv',
         'neonate_transverse'
     )
 
 neonateLong = ExperimentalGroup(
-        [0.106, 0.045],
+        [0.095, 0.043],
         '../simulations/results/',
         'neonate_long_sim.csv',
         'neonate_longitudinal'
     )
 
 adultTran = ExperimentalGroup(
-        [0.244, 0.072],
+        [0.230, 0.073],
         '../simulations/results/',
         'adult_tran_sim.csv',
         'adult_transverse'
     )
 
 adultLong = ExperimentalGroup(
-        [0.094, 0.043],
+        [0.092, 0.046],
         '../simulations/results/',
         'adult_long_sim.csv',
         'adult_longitudinal'
