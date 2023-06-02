@@ -83,9 +83,6 @@ def estimate_mean_stretch(wbar_exp, path, csv, title):
     # extract stretch and w/l data from simulations
     df_sim = pd.read_csv(path+csv, encoding='ISO-8859-1')
 
-    # extract expeimental results!!
-
-
     # curve fit of adult transverse data for standard deviation higher bound of stretch
     if title == 'adult_transverse':
         df_sim = analysis_functions.extrapolate(df_sim)
@@ -202,23 +199,24 @@ def bar_plot(path, csvs):
     plt.rcParams['axes.ymargin'] = 0
     plt.rcParams['font.size'] = 13
     plt.rcParams['hatch.linewidth'] = 2
+    plt.rcParams["figure.autolayout"] = True
 
     cmap = plt.cm.get_cmap("Blues")
     neonate = cmap(0.2)
     adult = cmap(1.0)
 
-    group_names = ['neonate \\ transverse', 'neonate longitudinal', 'adult transverse', 'adult longitudinal']
+    group_names = ['nT', 'nL', 'aT', 'aL']
     colors = [neonate, neonate, adult, adult]
     hatches = ['--', '||', '--', '||']
 
-    plt.figure()
+    plt.figure(figsize=[4,5])
     bars = plt.bar(group_names, wbar_mean, yerr=wbar_stdv, capsize=4, color=colors)
     for i in range(len(group_names)):
         bars[i].set(hatch = hatches[i], edgecolor='white')
     plt.ylabel(r'$\overline{w}_E$')
     plt.savefig("figure-bar_wbar", dpi=400)
 
-    plt.figure()
+    plt.figure(figsize=[4,5])
     bars = plt.bar(group_names, lambda_mean, yerr=lambda_stdv, capsize=4, color=colors)
     for i in range(len(group_names)):
         bars[i].set(hatch = hatches[i], edgecolor='white')
