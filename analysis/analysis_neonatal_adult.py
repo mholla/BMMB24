@@ -77,7 +77,7 @@ def exp_and_est_means(csvs, wbar_sets, lambda_sets):
 
     return wbar_mean, wbar_stdv, lambda_mean, lambda_stdv
 
-def estimate_mean_stretch(wbar_exp, path, csv, title, xticks, yticks):
+def estimate_mean_stretch(wbar_exp, path, csv, title):
     """ estimates stretch from average +/- stdev values of wbar """
 
     # extract stretch and w/l data from simulations
@@ -133,10 +133,8 @@ def write_estimated_stretches(groups):
     lambda_stds = []
     
     for group in groups:
-        xticks = np.arange(1.000, 1.180, step=0.020)
-        yticks = np.arange(0.000, 0.400, step=0.050)
 
-        [lambda_avg, lambda_std] = estimate_mean_stretch(group.wbar_exp, group.path, group.csv, group.title, xticks, yticks)
+        [lambda_avg, lambda_std] = estimate_mean_stretch(group.wbar_exp, group.path, group.csv, group.title)
         print('Simulation:', group.title)
         print('Estimated stretch:', lambda_avg,'+/-',lambda_std)
         experiments.append(group.title)
