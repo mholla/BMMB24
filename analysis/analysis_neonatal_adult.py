@@ -13,7 +13,19 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from scipy.stats import ttest_ind
 
-import analysis_functions
+def interpolateStretch(stretchFit, wbar, ave):
+    """ interpolates to find pre-stretch that corresponds to incision opening """
+    for j in stretchFit.index:
+        if stretchFit[j] < stretchFit.iloc[-1]:
+            if ave >= wbar[j] and ave <= wbar[j+1]:
+                stretch = stretchFit[j]+(stretchFit[j+1]-stretchFit[j])*((ave-wbar[j])/(wbar[j+1]-wbar[j]))
+    return stretch
+
+
+def polyfit(x, a, b, c, d, e, f):
+    """ polynomial regression fit """
+    polyfit = a*(x**5)+b*(x**4)+c*(x**3)+d*(x**2)+e*(x)+f
+    return polyfit
 
 def exp_and_est_data(path, csvs):
     group_names = []
@@ -51,7 +63,7 @@ def estimate_individual_stretches(path, csv):
                 wbar_exp.append(df_exp.wbar[i])
                 
                 # estimate corresponding stretch
-                stretch = analysis_functions.interpolateStretch(df_sim.lambda_p, df_sim.wbar, df_exp.wbar[i])
+                stretch = interpolateStretch(df_sim.lambda_p, df_sim.wbar, df_exp.wbar[i])
                 
                 # append stretch and strain values
                 lambda_est.append(stretch)

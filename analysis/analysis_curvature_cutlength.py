@@ -11,8 +11,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
-import analysis_functions
-
 def plot(path, csv1, csv2, csv3, csv4, csv5, xticks, yticks, legend, name, colors):
         
     # extract data
