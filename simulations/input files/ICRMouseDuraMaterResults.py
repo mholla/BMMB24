@@ -304,7 +304,7 @@ def solve(sim, modelProperties):
     cutLengthAndWidths_and_stretches(analysis)
     # Cut retraction dimensions 
     outFile = open(sim.odbName +'Results.csv', 'w+')
-    header = ['Cut Frame','Location','Nodes1','Nodes2','lambda_p', 'wOverlHalf', 'l', 'w']
+    header = ['Cut Frame','Location','Nodes1','Nodes2','lambda_p', 'wbar', 'l', 'w']
     output = zip(cutResults[0], cutResults[1], cutResults[2], cutResults[3], cutResults[4], cutResults[5], cutResults[6], cutResults[7])
     writer = csv.writer(outFile)
     writer.writerow(header)

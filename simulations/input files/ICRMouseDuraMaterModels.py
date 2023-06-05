@@ -631,8 +631,8 @@ class neonateICRMouseTransCut:
     self.b2 = self.b1-self.thickness
     self.c2 = self.c1-self.thickness
     # Cut along z midline
-    self.cutSize1 = (self.b1/2) - (self.b1/8.086)
-    self.cutSize2 = (self.b1/2) + (self.b1/8.086)
+    self.cutSize1 = (self.b1/2) - (self.b1/8.022)
+    self.cutSize2 = (self.b1/2) + (self.b1/8.022)
     # Edge lists
     self.duraMaterEdges_1 = ['[#3804 ]','[#f0 ]','[#f ]','[#311 ]','[#5440 ]','[#5440 ]']
     self.duraMaterEdges_2 = ['[#28440 ]', '[#f0 ]', '[#f ]', '[#311 ]', '[#34800 ]','[#13004 ]']
@@ -658,8 +658,8 @@ class neonateICRMouseLongCut:
     self.b2 = self.b1-self.thickness
     self.c2 = self.c1-self.thickness
     # Cut along y midline
-    self.cutSize1 = (self.a1/2) - (self.a1/4.758)
-    self.cutSize2 = (self.a1/2) + (self.a1/4.758)
+    self.cutSize1 = (self.a1/2) - (self.a1/4.742)
+    self.cutSize2 = (self.a1/2) + (self.a1/4.742)
     # Edge Lists
     self.duraMaterEdges_1 = ['[#6500 ]', '[#29004 ]','[#390 ]', '[#f ]', '[#71 ]','[#34800 ]']
     self.duraMaterEdges_2 = ['[#15040 ]', '[#e800 ]', '[#f0 ]', '[#f ]', '[#f ]', '[#311 ]']
@@ -685,8 +685,8 @@ class adultICRMouseTransCut:
     self.b2 = self.b1-self.thickness
     self.c2 = self.c1-self.thickness
     # Cut along z midline
-    self.cutSize1 = (self.b1/2) - (self.b1/7.423)
-    self.cutSize2 = (self.b1/2) + (self.b1/7.423)
+    self.cutSize1 = (self.b1/2) - (self.b1/7.376)
+    self.cutSize2 = (self.b1/2) + (self.b1/7.376)
     # Edge Lists
     self.duraMaterEdges_1 = ['[#3804 ]','[#f0 ]','[#f ]','[#311 ]','[#5440 ]','[#5440 ]']
     self.duraMaterEdges_2 = ['[#28440 ]', '[#f0 ]', '[#f ]', '[#311 ]', '[#34800 ]','[#13004 ]']
@@ -712,8 +712,8 @@ class adultICRMouseLongCut:
     self.b2 = self.b1-self.thickness
     self.c2 = self.c1-self.thickness
     # Cut along y midline
-    self.cutSize1 = (self.a1/2) - (self.a1/7.286)
-    self.cutSize2 = (self.a1/2) + (self.a1/7.286)
+    self.cutSize1 = (self.a1/2) - (self.a1/7.236)
+    self.cutSize2 = (self.a1/2) + (self.a1/7.236)
     # Edge Lists
     self.duraMaterEdges_1 = ['[#6500 ]', '[#29004 ]','[#390 ]', '[#f ]', '[#71 ]','[#34800 ]']
     self.duraMaterEdges_2 = ['[#15040 ]', '[#e800 ]', '[#f0 ]', '[#f ]', '[#f ]', '[#311 ]']
