@@ -107,9 +107,13 @@ def plot(groups):
         plt.rcParams['font.size'] = 13
 
         plt.figure()
+        # horizontal
         plt.axhspan((wbar_mean[i]-wbar_stdv[i]), (wbar_mean[i]+wbar_stdv[i]), facecolor='#DCDCDC', zorder=1)
+        # fill in under curve
         plt.fill_between(df_sim.lambda_p, df_sim.wbar, color='#7F7F7F', alpha=1, zorder=2)
+        # white out left
         plt.fill_between([1.000, (lambda_mean[i]-lambda_stdv[i])], [(wbar_mean[i]-wbar_stdv[i]), (wbar_mean[i]-wbar_stdv[i])], color='white', alpha=1, zorder=3)
+        # white out right side
         plt.fill_between([(lambda_mean[i]+lambda_stdv[i]), 1.16], [(wbar_mean[i]+wbar_stdv[i]), 0.35], color='white', alpha=1, zorder=4)
     
         plt.plot(df_sim.lambda_p, df_sim.wbar, linestyle='-',color='k', linewidth=2, zorder=5)
