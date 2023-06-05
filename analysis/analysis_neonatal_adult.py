@@ -1,4 +1,4 @@
-""" Last updated: 2023/05/31
+""" Last updated: 2023/06/05
 
 Script for plotting the change in incision opening (w/l) as stretch increases,
 for the transverse and longitudinal cuts in the neonatal and adult murine 
@@ -35,10 +35,6 @@ def estimate_individual_stretches(path, csv):
     # extract stretch and w/l data 
     df_sim = pd.read_csv(path+csv, encoding='ISO-8859-1')
     df_exp = pd.read_csv('../experiments/experimental_data.csv', encoding='ISO-8859-1')
-
-    # curve fit of adult transverse data for standard deviation higher bound of stretch
-    if csv == 'adult_tran_sim.csv':
-        df_sim = analysis_functions.extrapolate(df_sim)
     
     group_name = []
     wbar_exp = []
@@ -77,59 +73,43 @@ def exp_and_est_means(csvs, wbar_sets, lambda_sets):
 
     return wbar_mean, wbar_stdv, lambda_mean, lambda_stdv
 
-def estimate_mean_stretch(wbar_exp, path, csv, title):
-    """ estimates stretch from average +/- stdev values of wbar """
-
-    # extract stretch and w/l data from simulations
-    df_sim = pd.read_csv(path+csv, encoding='ISO-8859-1')
-
-    # curve fit of adult transverse data for standard deviation higher bound of stretch
-    if title == 'adult_transverse':
-        df_sim = analysis_functions.extrapolate(df_sim)
-
-    # estimate pre-stretch
-    lambda_avg = analysis_functions.interpolateStretch(df_sim.lambda_p, df_sim.wbar, wbar_exp[0])
-    lambda_low = analysis_functions.interpolateStretch(df_sim.lambda_p, df_sim.wbar, (wbar_exp[0] - wbar_exp[1]))
-    lambda_high = analysis_functions.interpolateStretch(df_sim.lambda_p, df_sim.wbar, (wbar_exp[0] + wbar_exp[1]))
-    
-    lambda_std_low = np.abs(lambda_avg - lambda_low)
-    lambda_std_high = np.abs(lambda_avg - lambda_high)
-    lambda_std = np.mean([lambda_std_low,lambda_std_high])
-
-    # plot
-    plt.rcParams['text.usetex'] = True
-    plt.rcParams['font.family'] = "serif"
-    plt.rcParams['axes.autolimit_mode'] = 'round_numbers'
-    plt.rcParams['axes.xmargin'] = 0
-    plt.rcParams['axes.ymargin'] = 0
-    plt.rcParams['font.size'] = 13
-
-    plt.figure()
-    plt.axhspan((wbar_exp[0]-wbar_exp[1]), (wbar_exp[0]+wbar_exp[1]), facecolor='#DCDCDC', zorder=1)
-    plt.fill_between(df_sim.lambda_p, df_sim.wbar, color='#7F7F7F', alpha=1, zorder=2)
-    plt.fill_between([1.0005, (lambda_avg-lambda_std_low)], [(wbar_exp[0]-wbar_exp[1]), (wbar_exp[0]-wbar_exp[1])], color='white', alpha=1, zorder=3)
-    plt.fill_between([(lambda_avg+lambda_std_high), 1.16], [(wbar_exp[0]+wbar_exp[1]), 0.35], color='white', alpha=1, zorder=4)
-    
-    plt.plot(df_sim.lambda_p, df_sim.wbar, linestyle='-',color='k', linewidth=2, zorder=5)
-    plt.plot([1.00, lambda_avg], [wbar_exp[0], wbar_exp[0]], linestyle='--', color='k', linewidth=1, zorder=5)
-    plt.plot([lambda_avg,lambda_avg], [0, wbar_exp[0]], linestyle='--', color='k', linewidth=1, zorder=5)
-    
-    plt.xlabel(r'$\lambda_p$')
-    plt.ylabel(r'$\overline{w}_S$')
-    plt.savefig("figure-" + title, dpi=400)
-
-    return lambda_avg, lambda_std
-
-def write_estimated_stretches(groups):
+def plot(groups):
     
     [group_names, wbar_sets, lambda_sets, strain_sets] = exp_and_est_data(path, csvs)
     [wbar_mean, wbar_stdv, lambda_mean, lambda_stdv] = exp_and_est_means(csvs, wbar_sets, lambda_sets)
+    
+    for i in range(len(groups)):
+        print('Simulation:', groups[i].title)
+        print('Experimental wbar:', wbar_mean[i],'+/-',wbar_stdv[i])
+        print('Estimated stretch:', lambda_mean[i],'+/-',lambda_stdv[i])
 
-    for i in range(len(groups)):        
-        [lambda_avg, lambda_std] = estimate_mean_stretch([wbar_mean[i], wbar_stdv[i]], group.path, group.csv, group.title)
+        # extract stretch and w/l data from simulations
+        df_sim = pd.read_csv(path+csvs[i], encoding='ISO-8859-1')
 
-        print('Simulation:', group.title)
-        print('Estimated stretch:', lambda_avg,'+/-',lambda_std)
+        # plot
+        plt.rcParams['text.usetex'] = True
+        plt.rcParams['font.family'] = "serif"
+        plt.rcParams['axes.autolimit_mode'] = 'round_numbers'
+        plt.rcParams['axes.xmargin'] = 0
+        plt.rcParams['axes.ymargin'] = 0
+        plt.rcParams['font.size'] = 13
+
+        plt.figure()
+        plt.axhspan((wbar_mean[i]-wbar_stdv[i]), (wbar_mean[i]+wbar_stdv[i]), facecolor='#DCDCDC', zorder=1)
+        plt.fill_between(df_sim.lambda_p, df_sim.wbar, color='#7F7F7F', alpha=1, zorder=2)
+        plt.fill_between([1.000, (lambda_mean[i]-lambda_stdv[i])], [(wbar_mean[i]-wbar_stdv[i]), (wbar_mean[i]-wbar_stdv[i])], color='white', alpha=1, zorder=3)
+        plt.fill_between([(lambda_mean[i]+lambda_stdv[i]), 1.16], [(wbar_mean[i]+wbar_stdv[i]), 0.35], color='white', alpha=1, zorder=4)
+    
+        plt.plot(df_sim.lambda_p, df_sim.wbar, linestyle='-',color='k', linewidth=2, zorder=5)
+        plt.plot([1.00, lambda_mean[i]], [wbar_mean[i], wbar_mean[i]], linestyle='--', color='k', linewidth=1, zorder=5)
+        plt.plot([lambda_mean[i],lambda_mean[i]], [0, wbar_mean[i]], linestyle='--', color='k', linewidth=1, zorder=5)
+    
+        plt.xlabel(r'$\lambda_p$')
+        plt.ylabel(r'$\overline{w}_S$')
+        ax1 = plt.twiny()
+        ax1.axes.get_xaxis().set_visible(False)
+        ax1.spines['bottom'].set_linewidth(1)
+        plt.savefig("figure-" + groups[i].title, dpi=400)
     
     # write experimental stretch information to file
     outFile = open('results-estimated_stretches.csv', 'w+')
@@ -246,7 +226,6 @@ adultLong = ExperimentalGroup(
         'adult_longitudinal'
     )
 
-
 if __name__ == '__main__':
     
     path = '../simulations/results/'
@@ -256,13 +235,13 @@ if __name__ == '__main__':
     for group in groups: 
         csvs.append(group.csv)
 
-    write_estimated_stretches(groups)
+    plot(groups)
 
     bar_plot(path, csvs)
 
     # statistical analysis
     outFile = open('results-statistics.csv', 'w+')
-    header = ['comparison', 'metric', 'test statistic', 'p-value', 'effect size']
+    header = ['comparison', 'metric', 'p-value', 'effect size']
     writer = csv.writer(outFile)
     writer.writerow(header)
     statistical_analysis(path, csvs[0], csvs[1])
