@@ -1,4 +1,4 @@
-""" Last updated: 2023/05/31
+""" Last updated: 2023/06/15
 
 Script for plotting the effect of curvature and cut length on incision 
 opening (w/l). These are plotted for the change in applied stretch.
@@ -11,7 +11,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
-def plot(path, csv1, csv2, csv3, csv4, csv5, xticks, yticks, legend, name, colors):
+def plot(path, csv1, csv2, csv3, csv4, csv5, ylimit, legend, name, colors):
         
     # extract data
     dataframe1 = pd.read_csv(path+csv1, encoding='ISO-8859-1')
@@ -32,15 +32,16 @@ def plot(path, csv1, csv2, csv3, csv4, csv5, xticks, yticks, legend, name, color
 
     plt.figure()
     # note that we have larger values (darker color) to smaller values (lighter color)
-    plt.plot(dataframe1.lambda_p, dataframe1.wOverlHalf, linestyle='-', color=cmap(colors[0]), label=legend[0], linewidth=2)
-    plt.plot(dataframe2.lambda_p, dataframe2.wOverlHalf, linestyle='-', color=cmap(colors[1]), label=legend[1], linewidth=2)
-    plt.plot(dataframe3.lambda_p, dataframe3.wOverlHalf, linestyle='-', color=cmap(colors[2]), label=legend[2], linewidth=2)
-    plt.plot(dataframe4.lambda_p, dataframe4.wOverlHalf, linestyle='-', color=cmap(colors[3]), label=legend[3], linewidth=2)
+    plt.plot(dataframe1.lambda_p, dataframe1.wbar, linestyle='-', color=cmap(colors[0]), label=legend[0], linewidth=2)
+    plt.plot(dataframe2.lambda_p, dataframe2.wbar, linestyle='-', color=cmap(colors[1]), label=legend[1], linewidth=2)
+    plt.plot(dataframe3.lambda_p, dataframe3.wbar, linestyle='-', color=cmap(colors[2]), label=legend[2], linewidth=2)
+    plt.plot(dataframe4.lambda_p, dataframe4.wbar, linestyle='-', color=cmap(colors[3]), label=legend[3], linewidth=2)
     if len(legend) == 6:
-        plt.plot(dataframe5.lambda_p, dataframe5.wOverlHalf, linestyle='-',color=cmap(colors[4]), label=legend[4], linewidth=2)
-        plt.plot(dataframeHenderson.lambda_p, dataframeHenderson.wOverlHalf, linestyle='-',color=cmap(colors[5]), label=legend[5], linewidth=2)
+        plt.plot(dataframe5.lambda_p, dataframe5.wbar, linestyle='-',color=cmap(colors[4]), label=legend[4], linewidth=2)
+        plt.plot(dataframeHenderson.lambda_p, dataframeHenderson.wbar, linestyle='-',color=cmap(colors[5]), label=legend[5], linewidth=2)
 
     plt.xlim([1, 1.14])
+    plt.ylim(ylimit)
     plt.xlabel(r'$\lambda_p$')
     plt.ylabel(r'$\overline{w}_S$')
 
@@ -59,10 +60,9 @@ def transverseCurvatureVsCutOpening():
     csva10Tran = 'curvature_10_tran.csv'
     legend = [r'$a=2$', r'$a=4$', r'$a=6$', r'$a=8$', r'$a=10$', 'Henderson et al.']
     name = 'figure-curvature_transverse.png'
-    xticks = np.arange(1.000, 1.160, step=0.020)
-    yticks = np.arange(0.000, 0.500, step=0.050)
+    ylimit = [0.00, 0.45]
     colors = [0.25, 0.40, 0.55, 0.70, 0.85, 1.00]
-    plot(path, csva2Tran, csva4Tran, csva6Tran, csva8Tran, csva10Tran, xticks, yticks, legend, name, colors)
+    plot(path, csva2Tran, csva4Tran, csva6Tran, csva8Tran, csva10Tran, ylimit, legend, name, colors)
 
 def longitudinalCurvatureVsCutOpening():
     path = '../simulations/results/'
@@ -73,10 +73,9 @@ def longitudinalCurvatureVsCutOpening():
     csva10Long = 'curvature_10_long.csv'
     legend = [r'$a=2$', r'$a=4$', r'$a=6$', r'$a=8$', r'$a=10$', 'Henderson et al.']
     name = 'figure-curvature_longitudinal.png'
-    xticks = np.arange(1.000, 1.160, step=0.020)
-    yticks = np.arange(0.000, 0.500, step=0.050)
+    ylimit = [0.00, 0.45]
     colors = [0.25, 0.40, 0.55, 0.70, 0.85, 1.00]
-    plot(path, csva2Long, csva4Long, csva6Long, csva8Long, csva10Long, xticks, yticks, legend, name, colors)
+    plot(path, csva2Long, csva4Long, csva6Long, csva8Long, csva10Long, ylimit, legend, name, colors)
 
 def transverseCutLengthVsCutOpening():
     path = '../simulations/results/'
@@ -87,10 +86,9 @@ def transverseCutLengthVsCutOpening():
     csv32ndTran = 'cut-length_32_tran.csv'
     legend = [r'$l_0=b/2$', r'$l_0=b/4$', r'$l_0=b/8$', r'$l_0=b/16$', r'$l_0=b/32$']
     name = 'figure-cutLength_transverse.png'
-    xticks = np.arange(1.000, 1.160, step=0.020)
-    yticks = np.arange(0.000, 0.500, step=0.050)
+    ylimit = [0.00, 0.35]
     colors = [1.00, 0.80, 0.60, 0.40]
-    plot(path, csvHalfTran, csv4thTran, csv8thTran, csv16thTran, csv32ndTran, xticks, yticks, legend, name, colors)
+    plot(path, csvHalfTran, csv4thTran, csv8thTran, csv16thTran, csv32ndTran, ylimit, legend, name, colors)
 
 def longitudinalCutLengthVsCutOpening():
     path = '../simulations/results/'
@@ -101,10 +99,9 @@ def longitudinalCutLengthVsCutOpening():
     csv32ndLong = 'cut-length_32_long.csv'
     legend = [r'$l_0=a/2$', r'$l_0=a/4$', r'$l_0=a/8$', r'$l_0=a/16$', r'$l_0=a/32$']
     name = 'figure-cutLength_longitudinal.png'
-    xticks = np.arange(1.000, 1.160, step=0.020)
-    yticks = np.arange(0.000, 0.500, step=0.050)
+    ylimit = [0.00, 0.35]
     colors = [1.00, 0.80, 0.60, 0.40]
-    plot(path, csvHalfLong, csv4thLong, csv8thLong, csv16thLong, csv32ndLong, xticks, yticks, legend, name, colors)
+    plot(path, csvHalfLong, csv4thLong, csv8thLong, csv16thLong, csv32ndLong, ylimit, legend, name, colors)
 
 if __name__ == '__main__':
     
