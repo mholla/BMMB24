@@ -44,10 +44,14 @@ if __name__ == '__main__':
     plt.rcParams['font.family'] = "serif"
     plt.rcParams['font.size'] = 13
 
+    cmap = plt.cm.get_cmap("Blues")
+    lightblue = cmap(0.4)
+    darkblue = cmap(1.0)
+
     plt.figure()
     for i in range(len(subjects)):
-        plt.plot(woi,data_SA[i][0:max_week], color="lightgray", linestyle=":")
-    plt.errorbar(woi, weekly_average, yerr=weekly_stdev, fmt='k-', ecolor='k', capsize=5)
+        plt.plot(woi,data_SA[i][0:max_week], color=lightblue, linestyle=":")
+    plt.errorbar(woi, weekly_average, yerr=weekly_stdev, fmt='-', color=darkblue, linewidth=3, ecolor=darkblue, elinewidth=1, capsize=5, zorder=10)
 
     plt.xticks(woi)
     plt.xlabel("Weeks")

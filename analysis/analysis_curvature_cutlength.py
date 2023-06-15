@@ -43,7 +43,10 @@ def plot(path, csv1, csv2, csv3, csv4, csv5, xticks, yticks, legend, name, color
     plt.xlim([1, 1.14])
     plt.xlabel(r'$\lambda_p$')
     plt.ylabel(r'$\overline{w}_S$')
-    plt.legend()
+
+    # reverse order of the legend to match the plot
+    handles, labels = plt.gca().get_legend_handles_labels()
+    plt.legend(reversed(handles), reversed(labels))
     
     plt.savefig(name, dpi=400)
 

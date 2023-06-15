@@ -106,11 +106,15 @@ def plot(groups):
         plt.rcParams['axes.ymargin'] = 0
         plt.rcParams['font.size'] = 13
 
+        cmap = plt.cm.get_cmap("Blues")
+        lightblue = cmap(0.2)
+        darkblue = cmap(0.8)
+
         plt.figure()
         # horizontal
-        plt.axhspan((wbar_mean[i]-wbar_stdv[i]), (wbar_mean[i]+wbar_stdv[i]), facecolor='#DCDCDC', zorder=1)
+        plt.axhspan((wbar_mean[i]-wbar_stdv[i]), (wbar_mean[i]+wbar_stdv[i]), facecolor=lightblue, zorder=1)
         # fill in under curve
-        plt.fill_between(df_sim.lambda_p, df_sim.wbar, color='#7F7F7F', alpha=1, zorder=2)
+        plt.fill_between(df_sim.lambda_p, df_sim.wbar, color=darkblue, alpha=1, zorder=2)
         # white out left
         plt.fill_between([1.000, (lambda_mean[i]-lambda_stdv[i])], [(wbar_mean[i]-wbar_stdv[i]), (wbar_mean[i]-wbar_stdv[i])], color='white', alpha=1, zorder=3)
         # white out right side
@@ -191,19 +195,25 @@ def bar_plot(path, csvs):
 
     group_names = ['nT', 'nL', 'aT', 'aL']
     colors = [neonate, neonate, adult, adult]
-    hatches = ['--', '||', '--', '||']
+    hatches = ['---', '|||', '---', '|||']
 
     plt.figure(figsize=[4,5])
-    bars = plt.bar(group_names, wbar_mean, yerr=wbar_stdv, capsize=4, color=colors)
+    # draw hatch
+    bars = plt.bar(group_names, wbar_mean, capsize=4, color='white')
     for i in range(len(group_names)):
-        bars[i].set(hatch = hatches[i], edgecolor='white')
+        bars[i].set(hatch = hatches[i], edgecolor=colors[i], lw=0.25, zorder=0)
+    # draw edge
+    plt.bar(group_names, wbar_mean, yerr=wbar_stdv, capsize=4, color='none', edgecolor='k', lw=1, zorder=1)
     plt.ylabel(r'$\overline{w}_E$')
     plt.savefig("figure-bar_wbar", dpi=400)
 
     plt.figure(figsize=[4,5])
-    bars = plt.bar(group_names, lambda_mean, yerr=lambda_stdv, capsize=4, color=colors)
+    # draw hatch
+    bars = plt.bar(group_names, lambda_mean, capsize=4, color='white')
     for i in range(len(group_names)):
-        bars[i].set(hatch = hatches[i], edgecolor='white')
+        bars[i].set(hatch = hatches[i], edgecolor=colors[i], lw=0.25, zorder=0)
+    # draw edge
+    plt.bar(group_names, lambda_mean, yerr=lambda_stdv, capsize=4, color='none', edgecolor='k', lw=1, zorder=1)
     plt.ylim([1, 1.2])
     plt.ylabel(r'$\lambda_p$')
     plt.savefig("figure-bar_lambda", dpi=400)
@@ -215,28 +225,24 @@ class ExperimentalGroup(object):
         self.title = title
 
 neonateTran = ExperimentalGroup(
-        
         '../simulations/results/',
         'neonate_tran_sim.csv',
         'neonate_transverse'
     )
 
 neonateLong = ExperimentalGroup(
-        
         '../simulations/results/',
         'neonate_long_sim.csv',
         'neonate_longitudinal'
     )
 
 adultTran = ExperimentalGroup(
-        
         '../simulations/results/',
         'adult_tran_sim.csv',
         'adult_transverse'
     )
 
 adultLong = ExperimentalGroup(
-        
         '../simulations/results/',
         'adult_long_sim.csv',
         'adult_longitudinal'
