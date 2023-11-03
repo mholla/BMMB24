@@ -1,4 +1,4 @@
-""" Last updated: 2023/06/05
+""" Last updated: 2023/11/03
 
 Script for plotting the change in incision opening (w/l) as stretch increases,
 for the transverse and longitudinal cuts in the neonatal and adult murine 
@@ -11,7 +11,7 @@ import pandas as pd
 import statistics as st
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from scipy.stats import ttest_ind
+from scipy.stats import mannwhitneyu
 
 def interpolateStretch(stretchFit, wbar, ave):
     """ interpolates to find pre-stretch that corresponds to incision opening """
@@ -154,8 +154,8 @@ def statistical_analysis(path, csv1, csv2):
     for test in [wbar_sets, lambda_sets]:
         comparison.append(group_names[0]+group_names[1])
         
-        # statistics w/ ttest_ind
-        [t, p] = ttest_ind(np.array(test[0]), np.array(test[1]), equal_var=False)
+        # statistics w/ ttest_ind (Mann-Whitney U test)
+        [t, p] = mannwhitneyu(np.array(test[0]), np.array(test[1]))
         p_values.append(p)
 
         # effect size
